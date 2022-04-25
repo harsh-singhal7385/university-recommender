@@ -1,0 +1,15 @@
+
+.carousel-img{
+    width:100vw;
+    height:93vh;
+}
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color:black;
+    color: white;
+    text-align: center;
+    min-height:10vh;
+ }
