@@ -7,7 +7,7 @@ import path , { dirname } from 'path'
 import { fileURLToPath } from 'url';
 import { initializeApp } from 'firebase/app';
 import {  getFirestore , collection, addDoc, getDocs } from 'firebase/firestore';
-import { getAuth,signInWithPopup, GoogleAuthProvider, signInWithRedirect ,getRedirectResult,createUserWithEmailAndPassword , signInWithEmailAndPassword , onAuthStateChanged  } from "firebase/auth";
+import { getAuth,signInWithPopup, GoogleAuthProvider, signInWithRedirect ,getRedirectResult, createUserWithEmailAndPassword , signInWithEmailAndPassword , onAuthStateChanged  } from "firebase/auth";
 // import fetch from 'node-fetch';
 import fetch from 'cross-fetch';
 
@@ -15,26 +15,20 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const port = "5000";
 let state;
+let state_condition;
 
-// const firebaseConfig = {
-//     apiKey: "AIzaSyD9Ag-rNxBiaY_D9L6Wbwp3HKcjgS-MY1k",
-//     authDomain: "quantiphi-firebase-blog.firebaseapp.com",
-//     projectId: "quantiphi-firebase-blog",
-//     storageBucket: "quantiphi-firebase-blog.appspot.com",
-//     messagingSenderId: "1064666082359",
-//     appId: "1:1064666082359:web:ba70fbbbc34d1c9c6ce3b2",
-//     measurementId: "G-V7YTZ6V0V7"
-  
-//   };
-
+// new project -> hci-project-2022
 const firebaseConfig = {
-    apiKey: "AIzaSyAVeJX8_b5sxr6wBsqxRhz5Z29R_sY1wPA",
-    authDomain: "quantiphi-blogs.firebaseapp.com",
-    projectId: "quantiphi-blogs",
-    storageBucket: "quantiphi-blogs.appspot.com",
-    messagingSenderId: "402183552455",
-    appId: "1:402183552455:web:09ce5dc0fe884acde9ede2"
+    apiKey: "AIzaSyCWh-zBasdCY3Kl4Vnwkdczzg3XZ5ijHC4",
+    authDomain: "hci-project-2022.firebaseapp.com",
+    projectId: "hci-project-2022",
+    storageBucket: "hci-project-2022.appspot.com",
+    messagingSenderId: "780302222864",
+    appId: "1:780302222864:web:eaec90fbe8fa940f096c95",
+    measurementId: "G-0XCZ9BCWXV"
   };
+
+
 
 const app_auth = initializeApp(firebaseConfig);
 const auth = getAuth();
@@ -45,7 +39,7 @@ const provider = new GoogleAuthProvider();
 const db = getFirestore();
 async function getDataFromFirestore(){
     let data_ans = [];
-    const querySnapshot = await getDocs(collection(db, "blog_data"));
+    const querySnapshot = await getDocs(collection(db, "feedback_info"));
     querySnapshot.forEach((doc) => {
         data_ans.push(doc.data())
     }
@@ -55,28 +49,47 @@ return data_ans
       
 }
 
-async function addDataToFirestore(body){
-    try {
-        const docRef = await addDoc(collection(db, "blog_data"), { 
-          author_id : body['author-id'],
-          author_name : body['author-name'],
-          blog_id : body['blog-id'],
-          blog_title : body['blog-title'],
-          blog_description : body['blog-description'],
-          date_time : new Date().toUTCString()
-        
-        });
-        // console.log("Document written with ID: ", docRef.id);
-      } catch (e) {
-        // console.error("Error adding document: ", e);
-      }
+async function addDataToFirestore(body,state_condition){
+    if(state_condition == "feedback"){
+        try {
+            const docRef = await addDoc(collection(db, "feedback_info"), { 
+              user_name : body['user-name'],
+              user_degree : body['user-degree'],
+              user_email : body['user-email'],
+              user_phone : body['user-phone'],
+              user_feedback : body['user-feedback'],
+              date_time : new Date().toUTCString()
+            
+            });
+            // console.log("Document written with ID: ", docRef.id);
+          } catch (e) {
+            console.error("Error adding document: ", e);
+          }
+    }else{
+
+        try {
+            const docRef = await addDoc(collection(db, "contact_info"), { 
+            user_name : body['user-name'],
+            user_degree : body['user-degree'],
+            user_email : body['user-email'],
+            user_phone : body['user-phone'],
+            user_contact : body['user-contact'],
+            date_time : new Date().toUTCString()
+            
+            });
+            // console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    }
+
 }
+
 
 
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname,'..', 'templates')); 
-// app.set('views','templates')
 app.use(bodyParser.urlencoded({
     extended: true
 }));
@@ -97,7 +110,7 @@ onAuthStateChanged(auth, (user) => {
 
   //  index.html
 app.get("/",  (req,res)=>{
-    
+        // console.log("in home get")
         res.status(200)
         res.sendFile(path.join(__dirname, '..', 'public', 'index.html'))
         
@@ -159,8 +172,33 @@ app.get("/feedback",  (req,res)=>{
     
 }) 
 
+app.post("/feedback",async (req,res)=>{
+
+    if(req.method == "POST"){
+        let body = req.body
+        // console.log(body)   
+        state_condition = "feedback"
+        await addDataToFirestore(body,state_condition)
+        res.status(200)
+        res.redirect('/submitted')
+    }
+
+})
+
+app.get('/submitted',(req,res)=>{
+    
+    res.status(200)
+    res.sendFile(path.join(__dirname,'..','public','display.html'))
+})
+
+app.get('/querysubmitted',(req,res)=>{
+    
+    res.status(200)
+    res.sendFile(path.join(__dirname,'..','public','query_display.html'))
+})
+
 app.get("/login", (req,res)=>{
-        
+        // console.log("in get login")
         res.status(200)
         res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));
 
@@ -168,11 +206,13 @@ app.get("/login", (req,res)=>{
 })
 
 app.get("/signup", (req,res)=>{
-    
+        // console.log("in get signup")
         res.status(200)
         res.sendFile(path.join(__dirname, '..', 'public', 'signup.html'));
     
 })
+
+
 
 app.get("/logout",(req,res)=>{
     // console.log("hi in get of / logout")
@@ -207,18 +247,13 @@ app.get('/demologout3',(req,res)=>{
     res.redirect('/login')
 })
 
-app.get("/create",async (req,res)=>{
-    
-    
-        res.status(200)
-        res.sendFile(path.join(__dirname+'/templates/create.html'));
- 
-
-})
+// app.get("/create",async (req,res)=>{
+        // res.status(200)
+        // res.sendFile(path.join(__dirname+'/templates/create.html'));
+// })
 
 app.get("/list",async (req,res)=>{
-    
-   
+        
         let dat;
         const name = "Default Data List From Firestore...."
         const data = await getDataFromFirestore();
@@ -228,11 +263,6 @@ app.get("/list",async (req,res)=>{
             // name : name,
             // data_obt : data
         })
-    
-   
-    
-    
-    
 })
 
 app.get("/filter",async (req,res)=>{
@@ -245,11 +275,6 @@ app.get("/filter",async (req,res)=>{
             // name : name,
             // data_obt : data
         })
-
-   
-
-    
-    
 })
 
 
@@ -325,7 +350,6 @@ app.get("/filterbytitle",async (req,res)=>{
 })
 
 
-
 app.post("/",async (req,res)=>{
     
         if(req.method == "POST"){
@@ -356,7 +380,7 @@ app.post("/results",async (req,res)=>{
             for(let i of data){
                 if(String(i.alpha_two_code) == String(country)){
                     arr.push(i)
-                    console.log(i)
+                    // console.log(i)
                     count++;
                 }
                 if(count > 15){
@@ -373,35 +397,22 @@ app.post("/results",async (req,res)=>{
         .catch(error => {
             // handle the error
         });
-    
-    }
-    // res.status(200)
-    // res.render('../results.ejs',{
-        // name  : name,
-        // data_obt : mydata
-
-// })
-    
-    
-
+    }    
 })
 
-app.post("/create",async (req,res)=>{
-    
- 
+app.post("/contact",async (req,res)=>{
         if(req.method == "POST"){
             let body = req.body
             // console.log(body)   
-            await addDataToFirestore(body)
+            state_condition = "contact"
+            await addDataToFirestore(body,state_condition)
             res.status(200)
-            res.redirect('/home')
+            res.redirect('/querysubmitted')
         }
-    
- 
 })
 
 app.post("/login",  (req,res)=>{
-    // console.log("hi in post of / login ") 
+    console.log("hi in post of / login ")  
     
     if(req.method == "POST"){
         let body = req.body
@@ -410,17 +421,17 @@ app.post("/login",  (req,res)=>{
         .then((userCredential) => {
         
             const user = userCredential.user;
-            // console.log(user)
+            console.log(user)
             res.status(200)
-            // console.log("success login")
-            res.redirect('/home')
+            console.log("success login")
+            res.redirect('/')
         
         })
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
             res.status(400)
-            // console.log("failure login")
+            console.log("failure login")
             res.redirect('/login')
         });
     }
@@ -428,7 +439,7 @@ app.post("/login",  (req,res)=>{
 })
 
 app.post("/signup",  (req,res)=>{
-    // console.log("hi in post of / signup") 
+    console.log("hi in post of / signup") 
     
     if(req.method == "POST"){
         let body = req.body
@@ -438,10 +449,10 @@ app.post("/signup",  (req,res)=>{
         .then((userCredential) => {
           // Signed in 
             const user =  userCredential.user;
-            // console.log(user)
+            console.log(user)
             res.status(200)
             // console.log("success signup")
-            res.redirect('/logout')
+            res.redirect('/')
           // ...
         })
         .catch((error) => {
@@ -449,7 +460,7 @@ app.post("/signup",  (req,res)=>{
             const errorMessage = error.message;
             // console.log(errorMessage)
             res.status(400)
-            // console.log("failure signup")
+            console.log("failure signup")
             res.redirect('/signup')
         
         });
