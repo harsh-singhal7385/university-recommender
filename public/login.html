@@ -62,10 +62,10 @@
                         <a class="nav-link text-light" href="/feedback">Feedback Form</a>
                       </li>
                     </ul>
-                    <form class="d-flex">
+                    <!-- <form class="d-flex"> -->
                       <a href="/signup"><button class="btn btn-primary me-5">Signup</button></a>
                       <a href="/login"><button class="btn btn-primary">Login</button></a>
-                    </form>
+                    <!-- </form> -->
                   </div>
                 </div>
             </nav>
@@ -123,35 +123,19 @@
 
 <script type="module">
       
-
-  // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js";
   import {  getAuth, GoogleAuthProvider , signInWithRedirect , getRedirectResult,signInWithPopup } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-auth.js';
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  //const firebaseConfig = {
-  //  apiKey: "AIzaSyD9Ag-rNxBiaY_D9L6Wbwp3HKcjgS-MY1k",
-  //  authDomain: "quantiphi-firebase-blog.firebaseapp.com",
-  //  projectId: "quantiphi-firebase-blog",
-  //  storageBucket: "quantiphi-firebase-blog.appspot.com",
-  //  messagingSenderId: "1064666082359",
-  //  appId: "1:1064666082359:web:ba70fbbbc34d1c9c6ce3b2",
-  //  measurementId: "G-V7YTZ6V0V7"
-  // };
 
   const firebaseConfig = {
-    apiKey: "AIzaSyAVeJX8_b5sxr6wBsqxRhz5Z29R_sY1wPA",
-    authDomain: "quantiphi-blogs.firebaseapp.com",
-    projectId: "quantiphi-blogs",
-    storageBucket: "quantiphi-blogs.appspot.com",
-    messagingSenderId: "402183552455",
-    appId: "1:402183552455:web:09ce5dc0fe884acde9ede2"
+    apiKey: "AIzaSyCWh-zBasdCY3Kl4Vnwkdczzg3XZ5ijHC4",
+    authDomain: "hci-project-2022.firebaseapp.com",
+    projectId: "hci-project-2022",
+    storageBucket: "hci-project-2022.appspot.com",
+    messagingSenderId: "780302222864",
+    appId: "1:780302222864:web:eaec90fbe8fa940f096c95",
+    measurementId: "G-0XCZ9BCWXV"
   };
   
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
