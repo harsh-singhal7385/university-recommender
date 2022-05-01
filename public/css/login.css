@@ -1,10 +1,5 @@
-
-.carousel-img{
-    width:100vw;
-    height:93vh;
-}
 .footer {
-    /* position: fixed; */
+    position: relative;
     left: 0;
     bottom: 0;
     width: 100%;

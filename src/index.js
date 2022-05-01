@@ -7,7 +7,7 @@ import path , { dirname } from 'path'
 import { fileURLToPath } from 'url';
 import { initializeApp } from 'firebase/app';
 import {  getFirestore , collection, addDoc, getDocs } from 'firebase/firestore';
-import { getAuth,signInWithPopup, GoogleAuthProvider, signInWithRedirect ,getRedirectResult, createUserWithEmailAndPassword , signInWithEmailAndPassword , onAuthStateChanged  } from "firebase/auth";
+import { getAuth,signInWithPopup, updateProfile , GoogleAuthProvider, signInWithRedirect ,getRedirectResult, createUserWithEmailAndPassword , signInWithEmailAndPassword , onAuthStateChanged  } from "firebase/auth";
 // import fetch from 'node-fetch';
 import fetch from 'cross-fetch';
 
@@ -16,7 +16,8 @@ const app = express();
 const port = "5000";
 let state;
 let state_condition;
-
+let message
+let status_state
 // new project -> hci-project-2022
 const firebaseConfig = {
     apiKey: "AIzaSyCWh-zBasdCY3Kl4Vnwkdczzg3XZ5ijHC4",
@@ -33,8 +34,9 @@ const firebaseConfig = {
 const app_auth = initializeApp(firebaseConfig);
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
-
-
+// const provider = new GoogleAuthProvider();
+// const login_popup = document.getElementById("")
+  
 
 const db = getFirestore();
 async function getDataFromFirestore(){
@@ -85,11 +87,9 @@ async function addDataToFirestore(body,state_condition){
 
 }
 
-
-
-
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname,'..', 'templates')); 
+
 app.use(bodyParser.urlencoded({
     extended: true
 }));
@@ -97,62 +97,165 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 app.use('/static', express.static(path.join(__dirname,'..', 'public')))
-
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const uid = user.uid;
-      
-    } else {
-      // User is signed out
-    }
-  });  
-
-
+  
   //  index.html
 app.get("/",  (req,res)=>{
         // console.log("in home get")
-        res.status(200)
-        res.sendFile(path.join(__dirname, '..', 'public', 'index.html'))
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                res.status(200);
+                res.render('../templates/index',{
+                    email : user.email,
+                    name : user.displayName,
+                    user : user
+                })
+            } else {
+                console.log("user is signed out, please login to perform desired operations....")
+                res.status(200)
+                message = ""
+                status_state = false
+                res.render('../templates/index',{
+                    user : user,
+                    message : "",
+                    status_state : status_state
+                })
+            }
+        })
+        //   }
+        // res.status(200)
+        // res.sendFile(path.join(__dirname, '..', 'templates', 'index.html'))
         
-}) 
+})
 
 
 //search.html
 app.get("/search",  (req,res)=>{
     
     res.status(200)
-    res.sendFile(path.join(__dirname, '..', 'public', 'search.html'))
+    // res.sendFile(path.join(__dirname, '..', 'templates', 'search.html'))
+    // res.render('../templates/search',{})
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            res.status(200);
+            res.render('../templates/search',{
+                email : user.email,
+                name : user.displayName,
+                user : user
+            })
+        } else {
+                console.log("user is signed out, please login to perform desired operations....")
+                message = ""
+                status_state = false
+                res.render('../templates/search',{
+                    user : user,
+                    message : "",
+                    status_state : status_state
+                })
+        }
+    })
     
 }) 
 
 app.get("/results",  (req,res)=>{
     
     res.status(200)
-    res.sendFile(path.join(__dirname, '..', 'public', 'results.html'))
-    
+    // res.sendFile(path.join(__dirname, '..', 'templates', 'results.html'))
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            res.status(200);
+            // res.render('../templates/results',{
+            //     email : user.email,
+            //     name : user.displayName,
+            //     user : user
+            // })
+            res.redirect("/")
+        } else {
+                console.log("user is signed out, please login to perform desired operations....")
+
+            res.status(200)
+            res.render('../templates/login',{
+                user : user,
+            })
+        }
+    }) 
 }) 
 
 // masters.html
 app.get("/masters",  (req,res)=>{
-    
     res.status(200)
-    res.sendFile(path.join(__dirname, '..', 'public', 'masters.html'))
-    
+    // res.sendFile(path.join(__dirname, '..', 'templates', 'masters.html'))
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            res.status(200);
+            res.render('../templates/masters',{
+                email : user.email,
+                name : user.displayName,
+                user : user
+            })
+        } else {
+                console.log("user is signed out, please login to perform desired operations....")
+                message = ""
+                status_state = false
+                res.render('../templates/masters',{
+                    user : user,
+                    message : "",
+                    status_state : status_state
+                })
+        }
+    })
 }) 
 
 //mba.html
 app.get("/mba",  (req,res)=>{
-    
     res.status(200)
-    res.sendFile(path.join(__dirname, '..', 'public', 'mba.html'))
-    
+    // res.sendFile(path.join(__dirname, '..', 'templates', 'mba.html'))
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            res.status(200);
+            res.render('../templates/mba',{
+                email : user.email,
+                name : user.displayName,
+                user : user
+            })
+        } else {
+                console.log("user is signed out, please login to perform desired operations....")
+
+                message = ""
+                status_state = false
+                res.render('../templates/mba',{
+                    user : user,
+                    message : "",
+                    status_state : status_state
+                })
+        }
+    })
 }) 
 
 //about.html
 app.get("/about",  (req,res)=>{
     
     res.status(200)
-    res.sendFile(path.join(__dirname, '..', 'public', 'about.html'))
+    // res.sendFile(path.join(__dirname, '..', 'templates', 'about.html'))
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            res.status(200);
+            res.render('../templates/about',{
+                email : user.email,
+                name : user.displayName,
+                user : user
+            })
+        } else {
+                console.log("user is signed out, please login to perform desired operations....")
+
+                message = ""
+                status_state = false
+                res.render('../templates/about',{
+                    user : user,
+                    message : "",
+                    status_state : status_state
+                })
+        }
+    })
     
 }) 
 
@@ -160,7 +263,28 @@ app.get("/about",  (req,res)=>{
 app.get("/contact",  (req,res)=>{
     
     res.status(200)
-    res.sendFile(path.join(__dirname, '..', 'public', 'contact.html'))
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            res.status(200);
+            res.render('../templates/contact',{
+                email : user.email,
+                name : user.displayName,
+                user : user
+            })
+        } else {
+                console.log("user is signed out, please login to perform desired operations....")
+
+                message = ""
+                status_state = false
+                res.render('../templates/contact',{
+                    user : user,
+                    message : "",
+                    status_state : status_state
+                })
+        }
+    })   
+    //  res.render('../templates/contact',{})
+
     
 }) 
 
@@ -168,47 +292,161 @@ app.get("/contact",  (req,res)=>{
 app.get("/feedback",  (req,res)=>{
     
     res.status(200)
-    res.sendFile(path.join(__dirname, '..', 'public', 'feedback.html'))
+    // res.sendFile(path.join(__dirname, '..', 'templates', 'feedback.html'))
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            res.status(200);
+            res.render('../templates/feedback',{
+                email : user.email,
+                name : user.displayName,
+                user : user
+            })
+        } else {
+                console.log("user is signed out, please login to perform desired operations....")
+            //   res.redirect("/login")
+                // message = ""
+                // status_state = false
+                res.status(200)
+                res.render('../templates/feedback',{
+                    user : user,
+                    message : "",
+                    status_state : ""
+                })
+        }
+    })
     
 }) 
 
 app.post("/feedback",async (req,res)=>{
+    onAuthStateChanged(auth, async(user) => {
+        if (user) {
+            // res.status(200);
+            // res.render('../templates/mba',{
+            //     email : user.email,
+            //     name : user.displayName,
+            //     user : user
+            // })
+            if(req.method == "POST"){
+                let body = req.body
+                // console.log(body)   
+                state_condition = "feedback"
+                await addDataToFirestore(body,state_condition)
+                res.status(200)
+                res.redirect('/submitted')
+            }
+        } else {
+                console.log("user is signed out, please login to perform desired operations....")
 
-    if(req.method == "POST"){
-        let body = req.body
-        // console.log(body)   
-        state_condition = "feedback"
-        await addDataToFirestore(body,state_condition)
-        res.status(200)
-        res.redirect('/submitted')
-    }
+            res.status(200)
+            // res.render('../templates/feedback',{
+            //     user : user,
+            // })
+            res.redirect("/login")
+        }
+    })
+   
 
 })
 
 app.get('/submitted',(req,res)=>{
     
-    res.status(200)
-    res.sendFile(path.join(__dirname,'..','public','display.html'))
+    // res.status(200)
+    // res.sendFile(path.join(__dirname,'..','templates','display.html'))
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            res.status(200);
+            res.render('../templates/display',{
+                email : user.email,
+                name : user.displayName,
+                user : user
+            })
+        } else {
+                console.log("user is signed out, please login to perform desired operations....")
+
+            res.status(200)
+            // res.render('../templates/login',{
+            //     user : user,
+            // })
+            res.redirect("/login")
+        }
+    })
 })
 
 app.get('/querysubmitted',(req,res)=>{
     
-    res.status(200)
-    res.sendFile(path.join(__dirname,'..','public','query_display.html'))
+    // res.status(200)
+    // res.sendFile(path.join(__dirname,'..','templates','query_display.html'))
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            res.status(200);
+            res.render('../templates/query_display',{
+                email : user.email,
+                name : user.displayName,
+                user : user
+            })
+        } else {
+                // console.log("user is signed out, please login to perform desired operations....")
+                res.status(200);
+                res.render('../templates/query_display',{
+                    email : "",
+                    name : "",
+                    user : user
+                })
+            // res.status(200)
+            // res.render('../templates/login',{
+            //     user : user,
+            // })
+            // res.redirect("/login")
+        }
+    })
 })
 
 app.get("/login", (req,res)=>{
         // console.log("in get login")
-        res.status(200)
-        res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));
+        // res.sendFile(path.join(__dirname, '..', 'templates', 'login.html'));
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                res.status(200);
+                res.render('../templates/index',{
+                    email : user.email,
+                    name : user.displayName,
+                    user : user
+                })
+            } else {
+                    console.log("user is signed out, please login to perform desired operations....")
+
+                res.status(200)
+                res.render('../templates/login',{
+                    user : user,
+                })
+            }
+        })
 
 
 })
 
 app.get("/signup", (req,res)=>{
-        // console.log("in get signup")
+    
+        console.log("in get signup")
         res.status(200)
-        res.sendFile(path.join(__dirname, '..', 'public', 'signup.html'));
+        // res.sendFile(path.join(__dirname, '..', 'templates', 'signup.html'));
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                res.status(200);
+                res.render('../templates/index',{
+                    email : user.email,
+                    name : user.displayName,
+                    user : user
+                })
+            } else {
+                    console.log("user is signed out, please login to perform desired operations....")
+
+                res.status(200)
+                res.render('../templates/signup',{
+                    user : user,
+                })
+            }
+        })
     
 })
 
@@ -252,163 +490,223 @@ app.get('/demologout3',(req,res)=>{
         // res.sendFile(path.join(__dirname+'/templates/create.html'));
 // })
 
-app.get("/list",async (req,res)=>{
+// app.get("/list",async (req,res)=>{
         
-        let dat;
-        const name = "Default Data List From Firestore...."
-        const data = await getDataFromFirestore();
-        // console.log(data)
-        res.status(200)
-        res.render('../templates/list.ejs',{
-            // name : name,
-            // data_obt : data
-        })
-})
+//         let dat;
+//         const name = "Default Data List From Firestore...."
+//         const data = await getDataFromFirestore();
+//         // console.log(data)
+//         res.status(200)
+//         res.render('../templates/list.html',{
+//             // name : name,
+//             // data_obt : data
+//         })
+// })
 
-app.get("/filter",async (req,res)=>{
+// app.get("/filter",async (req,res)=>{
     
-        res.status(200)
-        const data = await getDataFromFirestore();
-        // console.log(data)
-        const name = "Default Filter Data From Firestore...."
-        res.render('../templates/filter.ejs',{
-            // name : name,
-            // data_obt : data
-        })
-})
+//         res.status(200)
+//         const data = await getDataFromFirestore();
+//         // console.log(data)
+//         const name = "Default Filter Data From Firestore...."
+//         res.render('../templates/filter.html',{
+//             // name : name,
+//             // data_obt : data
+//         })
+// })
 
 
-app.get("/filterbydate",async (req,res)=>{
-    
+// app.get("/filterbydate",async (req,res)=>{
+//         let dat;
+//         const data = await getDataFromFirestore();
+//         // console.log(data)
+//         const name = "Filter Data By Date & Time...."
+//         const mydata = data.sort((a,b)=>{
+//             let dateA = new Date(a.date_time).getTime();
+//             let dateB = new Date(b.date_time).getTime();
+//             return dateA > dateB ? 1 : -1;
+//         })
+//         res.status(200)
+//         res.render('../templates/filter.html',{
+//             // name : name,
+//             // data_obt : mydata
+//         })
+// })
 
-        let dat;
-    
-        const data = await getDataFromFirestore();
-        // console.log(data)
-        const name = "Filter Data By Date & Time...."
-        const mydata = data.sort((a,b)=>{
-            let dateA = new Date(a.date_time).getTime();
-            let dateB = new Date(b.date_time).getTime();
-            return dateA > dateB ? 1 : -1;
-        })
-        
-        
-        res.status(200)
-        res.render('../templates/filter.ejs',{
-            // name : name,
-            // data_obt : mydata
-        })
+// app.get("/filterbyauthor",async (req,res)=>{
+//         let dat;
+//         const name = "Filter Data By Author Name...."
+//         const data = await getDataFromFirestore();
+//         // console.log(data)
+//         const mydata = data.sort((a,b)=>{
+//             let authorA = a.author_name;
+//             let authorB = b.author_name;
+//             return authorA > authorB ? 1 : -1;
+//         })
+//         res.status(200)
+//         res.render('../templates/filter.html',{
+//             // name : name,
+//             // data_obt : mydata
+//     })
+// })
 
- 
-})
-
-app.get("/filterbyauthor",async (req,res)=>{
-    
-  
-        let dat;
-        const name = "Filter Data By Author Name...."
-        const data = await getDataFromFirestore();
-        // console.log(data)
-        const mydata = data.sort((a,b)=>{
-            let authorA = a.author_name;
-            let authorB = b.author_name;
-            return authorA > authorB ? 1 : -1;
-        })
-        
-        res.status(200)
-        res.render('../templates/filter.ejs',{
-            // name : name,
-            // data_obt : mydata
-    })
-    
-   
-    
-})
-
-app.get("/filterbytitle",async (req,res)=>{
-    
-    
-  
-        let dat;
-        const name = "Filter Data By Blog Title...."
-        const data = await getDataFromFirestore();
-        // console.log(data)
-        const mydata = data.sort((a,b)=>{
-            let blogA = a.blog_title;
-            let blogB = b.blog_title;
-            return blogA > blogB ? 1 : -1;
-        })
-        
-        res.status(200)
-        res.render('../templates/filter.ejs',{
-            // name  : name,
-            // data_obt : mydata
-    
-    })
-    
-
-})
+// app.get("/filterbytitle",async (req,res)=>{
+//         let dat;
+//         const name = "Filter Data By Blog Title...."
+//         const data = await getDataFromFirestore();
+//         // console.log(data)
+//         const mydata = data.sort((a,b)=>{
+//             let blogA = a.blog_title;
+//             let blogB = b.blog_title;
+//             return blogA > blogB ? 1 : -1;
+//         })
+//         res.status(200)
+//         res.render('../templates/filter.html',{
+//             // name  : name,
+//             // data_obt : mydata
+//     })
+// })
 
 
 app.post("/",async (req,res)=>{
     
         if(req.method == "POST"){
-            let body = req.body
-            // console.log(body)
-        }
-        res.status(200)
-        res.sendFile(path.join(__dirname,'..','index.html'));
-        var select = document.getElementById('language');
-        // var value = select.options[select.selectedIndex].value;
+        // }
+        // res.status(200)
+        // res.sendFile(path.join(__dirname,'..','index.html'));
+        // res.render('../templates/index',{})
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                res.status(200);
+                res.render('../templates/index',{
+                    email : user.email,
+                    name : user.displayName,
+                    user : user
+                })
+            } else {
+                    console.log("user is signed out, please login to perform desired operations....")
+
+                res.status(200)
+                res.render('../templates/index',{
+                    user : user,
+                })
+            }
+        })
+    }
   
 })
 
-app.post("/results",async (req,res)=>{
-    
-    if(req.method == "POST"){
-        let body = req.body
-        console.log(body)
-        let country = String(body.selectCountry)
-        fetch(`http://universities.hipolabs.com/search?`)
-        .then(response => {
-            return response.json()
-        }).then(data => {
-            
-            let arr = []
-            let obj = {}
-            let count = 0
-            for(let i of data){
-                if(String(i.alpha_two_code) == String(country)){
-                    arr.push(i)
-                    // console.log(i)
-                    count++;
-                }
-                if(count > 15){
-                    break;
-                }
-            }
-            // console.log(data[0])
-            res.status(200)
-            res.render('results.ejs',{ 
-                data_obt : arr
-        })
+app.post("/results", (req,res)=>{
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log(user)
+            if(req.method == "POST"){
+                let body = req.body
+                console.log(body)
+                let country = String(body.selectCountry)
+                fetch(`http://universities.hipolabs.com/search?`)
+                .then(response => {
+                    return response.json()
+                }).then(data => {
+                    
+                    let arr = []
+                    let obj = {}
+                    let count = 0
+                    for(let i of data){
+                        if(String(i.alpha_two_code) == String(country)){
+                            arr.push(i)
+                            // console.log(i)
+                            count++;
+                        }
+                        if(count > 15){
+                            break;
+                        }
+                    }
+                    // console.log(data[0])
+                    res.status(200)
+                    res.render('../templates/results',{
+                        user : user,
+                        data_obt : arr
+                    })
+                
+                })
+                .catch(error => {
+                    // handle the error
+                });
+            }    
+        } else {
+                console.log("user is signed out, please login to perform desired operations....")
 
-        })
-        .catch(error => {
-            // handle the error
-        });
-    }    
-})
+            res.status(200)
+            res.redirect('/login')
+        }
+    
+    })
+    })
+        
+    // })
+    // if(req.method == "POST"){
+    //     let body = req.body
+    //     console.log(body)
+    //     let country = String(body.selectCountry)
+    //     fetch(`http://universities.hipolabs.com/search?`)
+    //     .then(response => {
+    //         return response.json()
+    //     }).then(data => {
+            
+    //         let arr = []
+    //         let obj = {}
+    //         let count = 0
+    //         for(let i of data){
+    //             if(String(i.alpha_two_code) == String(country)){
+    //                 arr.push(i)
+    //                 // console.log(i)
+    //                 count++;
+    //             }
+    //             if(count > 15){
+    //                 break;
+    //             }
+    //         }
+    //         // console.log(data[0])
+    //         res.status(200)
+    //         res.render('../templates/index',{
+    //             user : user,
+    //         })
+        
+    //     })
+    //     .catch(error => {
+    //         // handle the error
+    //     });
+    // }    
+
 
 app.post("/contact",async (req,res)=>{
-        if(req.method == "POST"){
-            let body = req.body
-            // console.log(body)   
-            state_condition = "contact"
-            await addDataToFirestore(body,state_condition)
-            res.status(200)
-            res.redirect('/querysubmitted')
+    // onAuthStateChanged(auth, async (user) => {
+        // if (user) {
+            if(req.method == "POST"){
+                let body = req.body
+                // console.log(body)   
+                state_condition = "contact"
+                await addDataToFirestore(body,state_condition)
+                res.status(200)
+                res.redirect('/querysubmitted')
+            
+            // res.render('../templates/search',{
+            //     email : user.email,
+            //     name : user.displayName, 
+            //     user : user
+            // })
         }
+        // } else {
+                // console.log("user is signed out, please login to perform desired operations....")
+
+            // res.status(200)
+            // res.render('../templates/login',{
+                // user : user,
+            // })
+        // }
+    // })
+       
 })
 
 app.post("/login",  (req,res)=>{
@@ -443,13 +741,34 @@ app.post("/signup",  (req,res)=>{
     
     if(req.method == "POST"){
         let body = req.body
-        // console.log(body)
+        let fname = body.fname
+        let lname = body.lname
+        let complete_name = fname+" "+lname
+        let complete_mobile = String(body.mobile)
+        console.log(complete_name)
+        console.log(body.mobile)
+        // console.log(body.password)
         
         createUserWithEmailAndPassword(auth, body.email, body.password)
         .then((userCredential) => {
           // Signed in 
+          const auth_temp = getAuth();
+          const user_temp = auth_temp.currentUser 
+            updateProfile(user_temp, {
+            displayName: complete_name, phoneNumber:complete_mobile, name: complete_name, email : body.email
+            }).then(() => {
+            console.log("Profile updated!")
+            console.log()
+            // ...
+            }).catch((error) => {
+                console.log("Error , Profile not updated!")
+            
+            // ...
+            });
             const user =  userCredential.user;
-            console.log(user)
+            console.log(user.displayName)
+            console.log(user.name)
+            
             res.status(200)
             // console.log("success signup")
             res.redirect('/')
@@ -465,6 +784,65 @@ app.post("/signup",  (req,res)=>{
         
         });
     }
+})
+
+app.get("/home",  (req,res)=>{
+    
+    res.status(200)
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            res.status(200);
+            console.log("successsssss")
+            res.render('../templates/index',{
+                email : user.email,
+                name : user.displayName,
+                user : user
+            })
+        } else {
+                console.log("kjssdkdlsk user is signed out, please login to perform desired operations....")
+                console.log("hiiiiiiiiiiiiiiii")
+                message = ""
+                status_state = false
+                res.render('../templates/login',{
+                    user : user,
+                    message : "",
+                    status_state : status_state
+                })
+        }
+    })   
+    //  res.render('../templates/contact',{})
+
+    
+}) 
+
+
+app.get("/v1/login",(req,res)=>{
+    
+    // addEventListener('click',(e)=>{
+        signInWithPopup(auth, provider)
+        .then((result) => {
+           
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken;
+          const user = result.user;
+          console.log(user)
+
+          res.redirect("/")
+
+        }).catch((error) => {
+        //   Handle Errors here.
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          const email = error.email;
+          const credential = GoogleAuthProvider.credentialFromError(error);
+          res.redirect("/login")
+          console.log("hey hey hey")
+        
+        });
+
+    // })
+    
+
 })
 
 
