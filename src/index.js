@@ -20,13 +20,7 @@ let message
 let status_state
 // new project -> hci-project-2022
 const firebaseConfig = {
-    apiKey: "AIzaSyCWh-zBasdCY3Kl4Vnwkdczzg3XZ5ijHC4",
-    authDomain: "hci-project-2022.firebaseapp.com",
-    projectId: "hci-project-2022",
-    storageBucket: "hci-project-2022.appspot.com",
-    messagingSenderId: "780302222864",
-    appId: "1:780302222864:web:eaec90fbe8fa940f096c95",
-    measurementId: "G-0XCZ9BCWXV"
+    
   };
 
 
